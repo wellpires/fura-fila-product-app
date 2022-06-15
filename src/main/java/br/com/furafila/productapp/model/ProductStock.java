@@ -25,9 +25,8 @@ public class ProductStock implements Serializable {
 	@Column(name = "qtdestoque", columnDefinition = "int4")
 	private Long stockQuantity;
 
-	@ManyToOne
-	@JoinColumn(name = "id_produto_FK", columnDefinition = "int4")
-	private Product product;
+	@Column(name = "id_produto_FK", columnDefinition = "int4")
+	private Long productId;
 
 	@ManyToOne
 	@JoinColumn(name = "id_estoque_fk", columnDefinition = "int4")
@@ -47,14 +46,6 @@ public class ProductStock implements Serializable {
 
 	public void setStockQuantity(Long stockQuantity) {
 		this.stockQuantity = stockQuantity;
-	}
-
-	public Product getProduct() {
-		return product;
-	}
-
-	public void setProduct(Product product) {
-		this.product = product;
 	}
 
 }

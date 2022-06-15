@@ -1,0 +1,13 @@
+{
+    "product": {
+        "productName": "Product Name 1",
+        "minimumStockQuantity": 10,
+        "productTypeId": 1,
+        "imageId": 10,
+        "dimension": {
+            "height": 20,
+            "width": 10,
+            "length": 30
+        }
+    }
+}

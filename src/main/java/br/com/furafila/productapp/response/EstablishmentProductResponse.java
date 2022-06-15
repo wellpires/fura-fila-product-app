@@ -11,6 +11,9 @@ public class EstablishmentProductResponse {
 	@JsonProperty("establishmentProducts")
 	private List<EstablishmentProductDTO> establishmentProductDTOs;
 
+	public EstablishmentProductResponse() {
+	}
+
 	public EstablishmentProductResponse(List<EstablishmentProductDTO> establishmentProductDTOs) {
 		this.establishmentProductDTOs = establishmentProductDTOs;
 	}

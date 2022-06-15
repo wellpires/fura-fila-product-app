@@ -1,15 +1,18 @@
 package br.com.furafila.productapp.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -53,6 +56,9 @@ public class Product implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "id_tipo_produto_fk", nullable = false, columnDefinition = "int4")
 	private ProductType productType;
+
+	@OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
+	private List<ProductStock> productStocks;
 
 	public Long getId() {
 		return id;
@@ -124,6 +130,14 @@ public class Product implements Serializable {
 
 	public void setProductType(ProductType productType) {
 		this.productType = productType;
+	}
+
+	public List<ProductStock> getProductStocks() {
+		return productStocks;
+	}
+
+	public void setProductStocks(List<ProductStock> productStocks) {
+		this.productStocks = productStocks;
 	}
 
 }

@@ -2,36 +2,36 @@ package br.com.furafila.productapp.function;
 
 import java.util.function.Function;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import br.com.furafila.productapp.builder.EstablishmentProductDTOBuilder;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDimensionDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductTypeDTO;
 import br.com.furafila.productapp.model.Product;
+import br.com.furafila.productapp.model.ProductStock;
 
 public class Product2EstablishmentProductDTOFunction implements Function<Product, EstablishmentProductDTO> {
 
-//TODO stockQuantity is missing!
 	@Override
 	public EstablishmentProductDTO apply(Product product) {
 
 		EstablishmentProductTypeDTO establishmentProductTypeDTO = new EstablishmentProductTypeDTO();
-		establishmentProductTypeDTO.setId(null);
-		establishmentProductTypeDTO.setName(null);
+		establishmentProductTypeDTO.setId(product.getProductType().getId());
+		establishmentProductTypeDTO.setName(product.getProductType().getName());
 
 		EstablishmentProductDimensionDTO establishmentProductDimensionDTO = new EstablishmentProductDimensionDTO();
-		establishmentProductDimensionDTO.setId(null);
-		establishmentProductDimensionDTO.setHeight(null);
-		establishmentProductDimensionDTO.setWidth(null);
-		establishmentProductDimensionDTO.setLength(null);
+		establishmentProductDimensionDTO.setId(product.getDimension().getId());
+		establishmentProductDimensionDTO.setHeight(product.getDimension().getHeight());
+		establishmentProductDimensionDTO.setWidth(product.getDimension().getWidth());
+		establishmentProductDimensionDTO.setLength(product.getDimension().getLength());
 
-//		return new EstablishmentProductDTOBuilder().productId(product.getId()).productName(product.getName())
-//				.unitPrice(product.getUnitPrice()).status(product.getStatus()).imageId(product.getImage().getId())
-//				.stockMinimumQuantity(product.getMinimumQuantity()).stockQuantity(123l)
-//				.establishmentProductTypeDTO(establishmentProductTypeDTO)
-//				.establishmentProductDimensionDTO(establishmentProductDimensionDTO).build();
-		return null;
+		Long stockQuantity = product.getProductStocks().stream().findFirst().orElseGet(ProductStock::new)
+				.getStockQuantity();
+
+		return new EstablishmentProductDTOBuilder().productId(product.getId()).productName(product.getName())
+				.unitPrice(product.getUnitPrice()).status(product.getStatus())
+				.stockMinimumQuantity(product.getMinimumQuantity()).imageId(product.getImage().getId())
+				.stockQuantity(stockQuantity).establishmentProductTypeDTO(establishmentProductTypeDTO)
+				.establishmentProductDimensionDTO(establishmentProductDimensionDTO).build();
 	}
 
 }
