@@ -18,6 +18,7 @@ import br.com.furafila.productapp.controller.resource.ProductResource;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
 import br.com.furafila.productapp.request.NewProductRequest;
 import br.com.furafila.productapp.response.EstablishmentProductResponse;
+import br.com.furafila.productapp.response.NewProductResponse;
 import br.com.furafila.productapp.service.ProductService;
 
 @RestController
@@ -37,12 +38,12 @@ public class ProductController implements ProductResource {
 	}
 
 	@Override
-	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> createProduct(@RequestBody @Valid NewProductRequest newProductRequest) {
-		
-		productService.createProduct(newProductRequest.getNewProductDTO());
-		
-		return ResponseEntity.noContent().build();
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<NewProductResponse> createProduct(@RequestBody @Valid NewProductRequest newProductRequest) {
+
+		Long productId = productService.createProduct(newProductRequest.getNewProductDTO());
+
+		return ResponseEntity.ok(new NewProductResponse(productId));
 	}
 
 }

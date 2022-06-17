@@ -143,24 +143,27 @@ public class ProductServiceImplTest {
 	@Test
 	public void shouldCreateProduct() {
 
+		Product product = new Product();
+		product.setId(10l);
+		when(productRepository.save(any())).thenReturn(product);
+
 		when(dimensionService.create(any())).thenReturn(10l);
-		
+
 		NewProductDTO newProductDTO = new NewProductDTO();
 		newProductDTO.setProductName("Product Name 1");
 		newProductDTO.setImageId(1l);
 		newProductDTO.setMinimumStockQuantity(10l);
 		newProductDTO.setProductTypeId(12l);
-		
+
 		NewDimensionDTO newDimensionDTO = new NewDimensionDTO();
 		newDimensionDTO.setHeight(10);
 		newDimensionDTO.setLength(5);
 		newDimensionDTO.setWidth(32);
 		newProductDTO.setNewDimensionDTO(newDimensionDTO);
-		
+
 		productService.createProduct(newProductDTO);
-		
+
 		verify(productRepository, times(1)).save(any());
-		
 
 	}
 

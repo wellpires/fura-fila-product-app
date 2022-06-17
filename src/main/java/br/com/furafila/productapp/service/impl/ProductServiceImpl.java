@@ -35,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void createProduct(NewProductDTO newProductDTO) {
+	public Long createProduct(NewProductDTO newProductDTO) {
 
 		Long dimensionId = dimensionService.create(newProductDTO.getNewDimensionDTO());
 
@@ -54,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
 		Image image = new Image();
 		image.setId(newProductDTO.getImageId());
 		product.setImage(image);
-		productRepository.save(product);
+		return productRepository.save(product).getId();
 
 	}
 

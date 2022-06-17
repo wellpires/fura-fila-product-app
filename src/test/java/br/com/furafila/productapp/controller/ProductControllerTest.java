@@ -2,6 +2,7 @@ package br.com.furafila.productapp.controller;
 
 import static br.com.furafila.productapp.matchers.ZeroValue.zeroValue;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.blankOrNullString;
@@ -45,8 +46,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDimensionDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductTypeDTO;
+import br.com.furafila.productapp.dto.NewProductDTO;
 import br.com.furafila.productapp.request.NewProductRequest;
 import br.com.furafila.productapp.response.EstablishmentProductResponse;
+import br.com.furafila.productapp.response.NewProductResponse;
 import br.com.furafila.productapp.service.ProductService;
 import br.com.furafila.productapp.util.ReplaceCamelCase;
 
@@ -175,11 +178,19 @@ public class ProductControllerTest {
 	@Test
 	public void shouldCreateProduct() throws Exception {
 
-		mockMvc.perform(post(PRODUCT_PATH).contentType(MediaType.APPLICATION_JSON_VALUE)
-				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNoContent()).andDo(print())
-				.andReturn();
+		when(productService.createProduct(any(NewProductDTO.class))).thenReturn(10l);
+
+		MvcResult result = mockMvc
+				.perform(post(PRODUCT_PATH).contentType(MediaType.APPLICATION_JSON_VALUE)
+						.content(mapper.writeValueAsString(newProductRequest)))
+				.andExpect(status().isOk()).andDo(print()).andReturn();
+
+		NewProductResponse newProductResponse = mapper.readValue(result.getResponse().getContentAsString(),
+				NewProductResponse.class);
 
 		verify(productService, times(1)).createProduct(any());
+
+		assertThat(newProductResponse.getId(), equalTo(10l));
 
 	}
 
@@ -195,7 +206,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseProductNameIsNull() throws Exception {
 
@@ -208,7 +219,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseProductNameIsNotValid() throws Exception {
 
@@ -221,7 +232,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseMinimumStockQuantityIsNull() throws Exception {
 
@@ -234,7 +245,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseMinimumStockQuantityIsNotValid() throws Exception {
 
@@ -247,7 +258,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseProductTypeIdIsNull() throws Exception {
 
@@ -260,7 +271,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseProductTypeIdIsNotValid() throws Exception {
 
@@ -273,7 +284,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseImageIdIsNull() throws Exception {
 
@@ -286,7 +297,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseImageIdIsNotValid() throws Exception {
 
@@ -299,7 +310,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseDimensionInfoIsNull() throws Exception {
 
@@ -312,7 +323,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseHeightIsNull() throws Exception {
 
@@ -325,7 +336,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseHeightIsNotValid() throws Exception {
 
@@ -338,7 +349,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseWidthIsNull() throws Exception {
 
@@ -351,7 +362,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseWidthIsNotValid() throws Exception {
 
@@ -364,7 +375,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseLengthIsNull() throws Exception {
 
@@ -377,7 +388,7 @@ public class ProductControllerTest {
 		verify(productService, never()).createProduct(any());
 
 	}
-	
+
 	@Test
 	public void shouldNotCreateProductBecauseLengthIsNotValid() throws Exception {
 

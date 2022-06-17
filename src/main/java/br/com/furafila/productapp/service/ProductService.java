@@ -9,6 +9,6 @@ public interface ProductService {
 
 	List<EstablishmentProductDTO> listEstablishmentProducts(Long establishmentId);
 
-	void createProduct(NewProductDTO newProductDTO);
+	Long createProduct(NewProductDTO newProductDTO);
 
 }

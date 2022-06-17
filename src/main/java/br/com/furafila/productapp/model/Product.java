@@ -33,13 +33,13 @@ public class Product implements Serializable {
 	private String name;
 
 	@Column(name = "valor_unitario", columnDefinition = "numeric(5, 2)")
-	private Double unitPrice;
+	private Double unitPrice = 0.00;
 
 	@Column(name = "qtdminima", columnDefinition = "int4")
-	private Long minimumQuantity;
+	private Long minimumQuantity = 0l;
 
 	@Column(name = "qtdmaxima", columnDefinition = "int4")
-	private Long maximumQuantity;
+	private Long maximumQuantity = 0l;
 
 	@Column(name = "status", columnDefinition = "int4")
 	@Convert(converter = Bit2BooleanConverter.class)
