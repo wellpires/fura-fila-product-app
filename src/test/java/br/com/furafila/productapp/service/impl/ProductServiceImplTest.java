@@ -7,31 +7,40 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import br.com.furafila.productapp.dao.ProductDAO;
+import br.com.furafila.productapp.dto.EditDimensionDTO;
+import br.com.furafila.productapp.dto.EditProductDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
+import br.com.furafila.productapp.dto.EstablishmentProductDimensionDTO;
+import br.com.furafila.productapp.dto.EstablishmentProductTypeDTO;
 import br.com.furafila.productapp.dto.NewDimensionDTO;
 import br.com.furafila.productapp.dto.NewProductDTO;
+import br.com.furafila.productapp.exception.ProductNotFoundException;
 import br.com.furafila.productapp.model.Dimension;
-import br.com.furafila.productapp.model.Image;
 import br.com.furafila.productapp.model.Product;
-import br.com.furafila.productapp.model.ProductStock;
-import br.com.furafila.productapp.model.ProductType;
 import br.com.furafila.productapp.respository.ProductRepository;
 import br.com.furafila.productapp.service.DimensionService;
 import br.com.furafila.productapp.service.ProductService;
@@ -50,64 +59,56 @@ public class ProductServiceImplTest {
 	@Mock
 	private DimensionService dimensionService;
 
+	@Mock
+	private ProductDAO productoDAO;
+
 	@Test
 	void shouldListEstablishmentProducts() {
 
-		Product product1 = new Product();
-		product1.setId(1l);
-		product1.setName("Name Test 1");
-		product1.setUnitPrice(25.0);
-		product1.setMinimumQuantity(10l);
-		product1.setStatus(Boolean.TRUE);
+		EstablishmentProductDTO establishmentProduct1 = new EstablishmentProductDTO();
+		establishmentProduct1.setImageId(10l);
+		establishmentProduct1.setProductId(20l);
+		establishmentProduct1.setProductName("Product Name 1");
+		establishmentProduct1.setStatus(Boolean.TRUE);
+		establishmentProduct1.setStockMinimumQuantity(9l);
+		establishmentProduct1.setStockQuantity(90l);
+		establishmentProduct1.setUnitPrice(9.2);
 
-		Image image1 = new Image();
-		image1.setId(2l);
-		product1.setImage(image1);
+		EstablishmentProductTypeDTO establishmentProductTypeDTO1 = new EstablishmentProductTypeDTO();
+		establishmentProductTypeDTO1.setId(30l);
+		establishmentProductTypeDTO1.setName("Product Type 1");
+		establishmentProduct1.setEstablishmentProductTypeDTO(establishmentProductTypeDTO1);
 
-		ProductStock productStock1 = new ProductStock();
-		productStock1.setStockQuantity(10l);
-		product1.setProductStocks(Arrays.asList(productStock1));
+		EstablishmentProductDimensionDTO establishmentProductDimensionDTO1 = new EstablishmentProductDimensionDTO();
+		establishmentProductDimensionDTO1.setId(1l);
+		establishmentProductDimensionDTO1.setHeight(2);
+		establishmentProductDimensionDTO1.setLength(10);
+		establishmentProductDimensionDTO1.setWidth(10);
+		establishmentProduct1.setEstablishmentProductDimensionDTO(establishmentProductDimensionDTO1);
 
-		ProductType productType1 = new ProductType();
-		productType1.setId(1l);
-		productType1.setName("Product Type 1");
-		product1.setProductType(productType1);
+		EstablishmentProductDTO establishmentProduct2 = new EstablishmentProductDTO();
+		establishmentProduct2.setImageId(20l);
+		establishmentProduct2.setProductId(30l);
+		establishmentProduct2.setProductName("Product Name 2");
+		establishmentProduct2.setStatus(Boolean.FALSE);
+		establishmentProduct2.setStockMinimumQuantity(90l);
+		establishmentProduct2.setStockQuantity(67l);
+		establishmentProduct2.setUnitPrice(2.9);
 
-		Dimension dimension1 = new Dimension();
-		dimension1.setId(4l);
-		dimension1.setHeight(23);
-		dimension1.setWidth(76);
-		dimension1.setLength(98);
-		product1.setDimension(dimension1);
+		EstablishmentProductTypeDTO establishmentProductTypeDTO2 = new EstablishmentProductTypeDTO();
+		establishmentProductTypeDTO2.setId(80l);
+		establishmentProductTypeDTO2.setName("Product Type 2");
+		establishmentProduct2.setEstablishmentProductTypeDTO(establishmentProductTypeDTO2);
 
-		Product product2 = new Product();
-		product2.setId(2l);
-		product2.setName("Name Test 2");
-		product2.setUnitPrice(50.0);
-		product2.setMinimumQuantity(30l);
-		product2.setStatus(Boolean.TRUE);
+		EstablishmentProductDimensionDTO establishmentProductDimensionDTO2 = new EstablishmentProductDimensionDTO();
+		establishmentProductDimensionDTO2.setId(2l);
+		establishmentProductDimensionDTO2.setHeight(87);
+		establishmentProductDimensionDTO2.setLength(30);
+		establishmentProductDimensionDTO2.setWidth(92);
+		establishmentProduct2.setEstablishmentProductDimensionDTO(establishmentProductDimensionDTO2);
 
-		Image image2 = new Image();
-		image2.setId(3l);
-		product2.setImage(image2);
-
-		ProductStock productStock2 = new ProductStock();
-		productStock2.setStockQuantity(19l);
-		product2.setProductStocks(Arrays.asList(productStock2));
-
-		ProductType productType2 = new ProductType();
-		productType2.setId(7l);
-		productType2.setName("Product Type 2");
-		product2.setProductType(productType2);
-
-		Dimension dimension2 = new Dimension();
-		dimension2.setId(7l);
-		dimension2.setHeight(32);
-		dimension2.setWidth(98);
-		dimension2.setLength(10);
-		product2.setDimension(dimension2);
-
-		when(productRepository.listEstablishmentProducts(anyLong())).thenReturn(Arrays.asList(product1, product2));
+		when(productoDAO.listEstablishmentProducts(anyLong()))
+				.thenReturn(Arrays.asList(establishmentProduct1, establishmentProduct2));
 
 		List<EstablishmentProductDTO> listEstablishmentProductDTOs = productService.listEstablishmentProducts(10l);
 
@@ -123,9 +124,9 @@ public class ProductServiceImplTest {
 			assertThat(establishmentProductDTO.getStockMinimumQuantity(), allOf(not(nullValue()), not(zeroValue())));
 			assertThat(establishmentProductDTO.getStockQuantity(), allOf(not(nullValue()), not(zeroValue())));
 
-			assertThat(establishmentProductDTO.getEstablishmentProducTypeDTO().getId(),
+			assertThat(establishmentProductDTO.getEstablishmentProductTypeDTO().getId(),
 					allOf(not(nullValue()), not(zeroValue())));
-			assertThat(establishmentProductDTO.getEstablishmentProducTypeDTO().getName(), not(blankOrNullString()));
+			assertThat(establishmentProductDTO.getEstablishmentProductTypeDTO().getName(), not(blankOrNullString()));
 
 			assertThat(establishmentProductDTO.getEstablishmentProductDimensionDTO().getId(),
 					allOf(not(nullValue()), not(zeroValue())));
@@ -150,7 +151,7 @@ public class ProductServiceImplTest {
 		when(dimensionService.create(any())).thenReturn(10l);
 
 		NewProductDTO newProductDTO = new NewProductDTO();
-		newProductDTO.setProductName("Product Name 1");
+		newProductDTO.setName("Product Name 1");
 		newProductDTO.setImageId(1l);
 		newProductDTO.setMinimumStockQuantity(10l);
 		newProductDTO.setProductTypeId(12l);
@@ -164,6 +165,108 @@ public class ProductServiceImplTest {
 		productService.createProduct(newProductDTO);
 
 		verify(productRepository, times(1)).save(any());
+
+	}
+
+	@Test
+	public void shouldEdit() {
+
+		Product product = new Product();
+		Dimension dimension = new Dimension();
+		dimension.setId(9l);
+		product.setDimension(dimension);
+
+		when(productRepository.findById(anyLong())).thenReturn(Optional.ofNullable(product));
+
+		EditProductDTO editProductDTO = new EditProductDTO();
+		editProductDTO.setName("Product Name 1");
+		editProductDTO.setMinimumStockQuantity(17l);
+		editProductDTO.setProductTypeId(66l);
+
+		EditDimensionDTO editDimensionDTO = new EditDimensionDTO();
+		editDimensionDTO.setHeight(11);
+		editDimensionDTO.setLength(22);
+		editDimensionDTO.setWidth(33);
+		editProductDTO.setEditDimensionDTO(editDimensionDTO);
+
+		productService.edit(editProductDTO, 10l);
+
+		verify(dimensionService, times(1)).edit(any(EditDimensionDTO.class), anyLong());
+		verify(productRepository, times(1)).save(any(Product.class));
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseProductNotFound() {
+
+		Product product = null;
+		when(productRepository.findById(anyLong())).thenReturn(Optional.ofNullable(product));
+
+		EditProductDTO editProductDTO = new EditProductDTO();
+		editProductDTO.setName("Product Name 1");
+		editProductDTO.setMinimumStockQuantity(17l);
+		editProductDTO.setProductTypeId(66l);
+
+		EditDimensionDTO editDimensionDTO = new EditDimensionDTO();
+		editDimensionDTO.setHeight(11);
+		editDimensionDTO.setLength(22);
+		editDimensionDTO.setWidth(33);
+		editProductDTO.setEditDimensionDTO(editDimensionDTO);
+
+		assertThrows(ProductNotFoundException.class, () -> {
+			productService.edit(editProductDTO, 10l);
+		});
+
+		verify(dimensionService, never()).edit(any(EditDimensionDTO.class), anyLong());
+		verify(productRepository, never()).save(any(Product.class));
+
+	}
+
+	@Test
+	public void shouldToggleProductStatusToTrue() {
+
+		Product product = new Product();
+		product.setStatus(Boolean.TRUE);
+		when(productRepository.findById(anyLong())).thenReturn(Optional.ofNullable(product));
+
+		productService.toggleProductStatus(10l);
+
+		ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+		verify(productRepository).save(productCaptor.capture());
+
+		Product productKept = productCaptor.getValue();
+		assertFalse(productKept.getStatus());
+
+	}
+	
+	@Test
+	public void shouldToggleProductStatusToFalse() {
+
+		Product product = new Product();
+		product.setStatus(Boolean.FALSE);
+		when(productRepository.findById(anyLong())).thenReturn(Optional.ofNullable(product));
+
+		productService.toggleProductStatus(10l);
+
+		ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+		verify(productRepository).save(productCaptor.capture());
+
+		Product productKept = productCaptor.getValue();
+		assertTrue(productKept.getStatus());
+
+	}
+
+	@Test
+	public void shouldNotToggleProductStatusBecauseNotFound() {
+
+		Product product = null;
+		when(productRepository.findById(anyLong())).thenReturn(Optional.ofNullable(product));
+
+		assertThrows(ProductNotFoundException.class, () -> {
+			productService.toggleProductStatus(10l);
+		});
+
+		verify(productRepository, never()).save(any(Product.class));
 
 	}
 

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import br.com.furafila.productapp.exception.DimensionNotFoundException;
+import br.com.furafila.productapp.exception.ProductNotFoundException;
 import br.com.furafila.productapp.response.ErrorResponse;
 
 @RestControllerAdvice
@@ -38,6 +40,20 @@ public class ProductControllerAdvice {
 		logger.error("{} - Value: {}", defaultMessage, rejectedValue);
 
 		return ResponseEntity.badRequest().body(new ErrorResponse(defaultMessage));
+	}
+
+	@ExceptionHandler(DimensionNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ResponseEntity<Void> handleDimensionNotFoundException(DimensionNotFoundException dnofEx) {
+		logger.error(dnofEx.getMessage(), dnofEx);
+		return ResponseEntity.notFound().build();
+	}
+
+	@ExceptionHandler(ProductNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ResponseEntity<Void> handleProductNotFoundException(ProductNotFoundException pnfEx) {
+		logger.error(pnfEx.getMessage(), pnfEx);
+		return ResponseEntity.notFound().build();
 	}
 
 }

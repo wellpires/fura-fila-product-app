@@ -18,7 +18,7 @@ public class NewProductDTO {
 
 	@NotBlank(message = Messages.NEW_PRODUCT_NAME_IS_REQUIRED, groups = FirstOrder.class)
 	@Size(min = 4, max = 50, message = Messages.NEW_PRODUCT_NAME_LENGTH_IS_NOT_VALID, groups = SecondOrder.class)
-	private String productName;
+	private String name;
 
 	@NotNull(message = Messages.NEW_MINIMUM_STOCK_QUANTITY_IS_REQUIRED, groups = FirstOrder.class)
 	@Min(value = 1, message = Messages.NEW_MINIMUM_STOCK_QUANTITY_IS_NOT_VALID, groups = SecondOrder.class)
@@ -37,12 +37,12 @@ public class NewProductDTO {
 	@NotNull(message = Messages.NEW_DIMENSION_INFORMATION_IS_REQUIRED, groups = FirstOrder.class)
 	private NewDimensionDTO newDimensionDTO;
 
-	public String getProductName() {
-		return productName;
+	public String getName() {
+		return name;
 	}
 
-	public void setProductName(String productName) {
-		this.productName = productName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Long getMinimumStockQuantity() {

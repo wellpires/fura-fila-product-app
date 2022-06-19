@@ -13,7 +13,7 @@ public class EstablishmentProductDTO {
 	private Long stockQuantity;
 
 	@JsonProperty("productType")
-	private EstablishmentProductTypeDTO establishmentProducTypeDTO;
+	private EstablishmentProductTypeDTO establishmentProductTypeDTO;
 
 	@JsonProperty("dimension")
 	private EstablishmentProductDimensionDTO establishmentProductDimensionDTO;
@@ -74,12 +74,12 @@ public class EstablishmentProductDTO {
 		this.stockQuantity = stockQuantity;
 	}
 
-	public EstablishmentProductTypeDTO getEstablishmentProducTypeDTO() {
-		return establishmentProducTypeDTO;
+	public EstablishmentProductTypeDTO getEstablishmentProductTypeDTO() {
+		return establishmentProductTypeDTO;
 	}
 
-	public void setEstablishmentProducTypeDTO(EstablishmentProductTypeDTO establishmentProducTypeDTO) {
-		this.establishmentProducTypeDTO = establishmentProducTypeDTO;
+	public void setEstablishmentProductTypeDTO(EstablishmentProductTypeDTO establishmentProductTypeDTO) {
+		this.establishmentProductTypeDTO = establishmentProductTypeDTO;
 	}
 
 	public EstablishmentProductDimensionDTO getEstablishmentProductDimensionDTO() {

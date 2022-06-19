@@ -11,12 +11,15 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,14 +42,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.furafila.productapp.dto.EditProductDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDimensionDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductTypeDTO;
 import br.com.furafila.productapp.dto.NewProductDTO;
+import br.com.furafila.productapp.exception.DimensionNotFoundException;
+import br.com.furafila.productapp.exception.ProductNotFoundException;
 import br.com.furafila.productapp.request.NewProductRequest;
 import br.com.furafila.productapp.response.EstablishmentProductResponse;
 import br.com.furafila.productapp.response.NewProductResponse;
@@ -61,6 +68,8 @@ public class ProductControllerTest {
 	private static final String PRODUCT_PATH = "/products";
 	private static final String LIST_ESTABLISHMENT_PRODUCTS_PATH = PRODUCT_PATH
 			.concat("/establishments/{establishmentId}");
+	private static final String EDIT_PRODUCT_PATH = PRODUCT_PATH.concat("/{productId}");
+	private static final String TOGGLE_PRODUCT_STATUS_PATH = PRODUCT_PATH.concat("/{productId}");
 
 	@MockBean
 	private ProductService productService;
@@ -96,7 +105,7 @@ public class ProductControllerTest {
 		EstablishmentProductTypeDTO establishmentProducTypeDTO1 = new EstablishmentProductTypeDTO();
 		establishmentProducTypeDTO1.setId(1l);
 		establishmentProducTypeDTO1.setName("product type 1");
-		establishmentProductDTO1.setEstablishmentProducTypeDTO(establishmentProducTypeDTO1);
+		establishmentProductDTO1.setEstablishmentProductTypeDTO(establishmentProducTypeDTO1);
 
 		EstablishmentProductDimensionDTO establishmentProductDimensionDTO1 = new EstablishmentProductDimensionDTO();
 		establishmentProductDimensionDTO1.setId(1l);
@@ -117,7 +126,7 @@ public class ProductControllerTest {
 		EstablishmentProductTypeDTO establishmentProducTypeDTO2 = new EstablishmentProductTypeDTO();
 		establishmentProducTypeDTO2.setId(1l);
 		establishmentProducTypeDTO2.setName("product type 2_1");
-		establishmentProductDTO2.setEstablishmentProducTypeDTO(establishmentProducTypeDTO2);
+		establishmentProductDTO2.setEstablishmentProductTypeDTO(establishmentProducTypeDTO2);
 
 		EstablishmentProductDimensionDTO establishmentProductDimensionDTO2 = new EstablishmentProductDimensionDTO();
 		establishmentProductDimensionDTO2.setId(1l);
@@ -166,10 +175,10 @@ public class ProductControllerTest {
 			assertThat(establishmentProductDTO.getEstablishmentProductDimensionDTO().getWidth(),
 					allOf(not(nullValue()), not(zeroValue())));
 
-			assertNotNull(establishmentProductDTO.getEstablishmentProducTypeDTO());
-			assertThat(establishmentProductDTO.getEstablishmentProducTypeDTO().getId(),
+			assertNotNull(establishmentProductDTO.getEstablishmentProductTypeDTO());
+			assertThat(establishmentProductDTO.getEstablishmentProductTypeDTO().getId(),
 					allOf(not(nullValue()), not(zeroValue())));
-			assertThat(establishmentProductDTO.getEstablishmentProducTypeDTO().getName(), not(blankOrNullString()));
+			assertThat(establishmentProductDTO.getEstablishmentProductTypeDTO().getName(), not(blankOrNullString()));
 
 		}
 
@@ -210,7 +219,7 @@ public class ProductControllerTest {
 	@Test
 	public void shouldNotCreateProductBecauseProductNameIsNull() throws Exception {
 
-		newProductRequest.getNewProductDTO().setProductName(null);
+		newProductRequest.getNewProductDTO().setName(null);
 
 		mockMvc.perform(post(PRODUCT_PATH).contentType(MediaType.APPLICATION_JSON_VALUE)
 				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isBadRequest())
@@ -223,7 +232,7 @@ public class ProductControllerTest {
 	@Test
 	public void shouldNotCreateProductBecauseProductNameIsNotValid() throws Exception {
 
-		newProductRequest.getNewProductDTO().setProductName("1");
+		newProductRequest.getNewProductDTO().setName("1");
 
 		mockMvc.perform(post(PRODUCT_PATH).contentType(MediaType.APPLICATION_JSON_VALUE)
 				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isBadRequest())
@@ -399,6 +408,87 @@ public class ProductControllerTest {
 				.andDo(print()).andReturn();
 
 		verify(productService, never()).createProduct(any());
+
+	}
+
+	@Test
+	public void shouldEdit() throws JsonProcessingException, Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNoContent()).andDo(print())
+				.andReturn();
+
+		verify(productService, times(1)).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseNotFound() throws JsonProcessingException, Exception {
+
+		doThrow(new ProductNotFoundException()).when(productService).edit(any(EditProductDTO.class), anyLong());
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNotFound()).andDo(print())
+				.andReturn();
+
+		verify(productService, times(1)).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseDimensionNotFound() throws JsonProcessingException, Exception {
+
+		doThrow(new DimensionNotFoundException()).when(productService).edit(any(EditProductDTO.class), anyLong());
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNotFound()).andDo(print())
+				.andReturn();
+
+		verify(productService, times(1)).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldToggleProductStatus() throws JsonProcessingException, Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(TOGGLE_PRODUCT_STATUS_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(delete(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNoContent()).andDo(print())
+				.andReturn();
+
+		verify(productService, times(1)).toggleProductStatus(anyLong());
+
+	}
+
+	@Test
+	public void shouldNotToggleProductStatusBecauseNotFound() throws JsonProcessingException, Exception {
+
+		doThrow(new ProductNotFoundException()).when(productService).toggleProductStatus(anyLong());
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(TOGGLE_PRODUCT_STATUS_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(delete(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNotFound()).andDo(print())
+				.andReturn();
+
+		verify(productService, times(1)).toggleProductStatus(anyLong());
 
 	}
 

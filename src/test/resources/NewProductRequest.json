@@ -1,6 +1,6 @@
 {
     "product": {
-        "productName": "Product Name 1",
+        "name": "Product Name 1",
         "minimumStockQuantity": 10,
         "productTypeId": 1,
         "imageId": 10,

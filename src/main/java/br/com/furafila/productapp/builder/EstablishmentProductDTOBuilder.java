@@ -72,7 +72,7 @@ public class EstablishmentProductDTOBuilder {
 		establishmentProductDTO.setImageId(imageId);
 		establishmentProductDTO.setStockMinimumQuantity(stockminimumQuantity);
 		establishmentProductDTO.setStockQuantity(stockQuantity);
-		establishmentProductDTO.setEstablishmentProducTypeDTO(establishmentProductTypeDTO);
+		establishmentProductDTO.setEstablishmentProductTypeDTO(establishmentProductTypeDTO);
 		establishmentProductDTO.setEstablishmentProductDimensionDTO(establishmentProductDimensionDTO);
 		return establishmentProductDTO;
 	}
