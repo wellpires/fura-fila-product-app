@@ -2,6 +2,7 @@ package br.com.furafila.productapp.service.impl;
 
 import static br.com.furafila.productapp.matchers.ZeroValue.zeroValue;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.blankOrNullString;
@@ -33,6 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.furafila.productapp.dao.ProductDAO;
 import br.com.furafila.productapp.dto.EditDimensionDTO;
 import br.com.furafila.productapp.dto.EditProductDTO;
+import br.com.furafila.productapp.dto.EditProductUnitPriceDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDimensionDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductTypeDTO;
@@ -238,7 +240,7 @@ public class ProductServiceImplTest {
 		assertFalse(productKept.getStatus());
 
 	}
-	
+
 	@Test
 	public void shouldToggleProductStatusToFalse() {
 
@@ -264,6 +266,43 @@ public class ProductServiceImplTest {
 
 		assertThrows(ProductNotFoundException.class, () -> {
 			productService.toggleProductStatus(10l);
+		});
+
+		verify(productRepository, never()).save(any(Product.class));
+
+	}
+
+	@Test
+	public void shouldEditUnitPrice() {
+
+		Product product = new Product();
+		product.setUnitPrice(0.00);
+		when(productRepository.findById(anyLong())).thenReturn(Optional.ofNullable(product));
+
+		EditProductUnitPriceDTO newUnitPriceDTO = new EditProductUnitPriceDTO();
+		newUnitPriceDTO.setUnitPrice(22.80);
+		productService.editUnitPrice(newUnitPriceDTO, 10l);
+
+		verify(productRepository, times(1)).save(any(Product.class));
+
+		ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+		verify(productRepository).save(productCaptor.capture());
+		Product productCaught = productCaptor.getValue();
+
+		assertThat(productCaught.getUnitPrice(), equalTo(newUnitPriceDTO.getUnitPrice()));
+	}
+
+	@Test
+	public void shouldNotEditUnitPriceBecauseProductNotFound() {
+
+		Product product = null;
+		when(productRepository.findById(anyLong())).thenReturn(Optional.ofNullable(product));
+
+		EditProductUnitPriceDTO newUnitPriceDTO = new EditProductUnitPriceDTO();
+		newUnitPriceDTO.setUnitPrice(22.80);
+
+		assertThrows(ProductNotFoundException.class, () -> {
+			productService.editUnitPrice(newUnitPriceDTO, 10l);
 		});
 
 		verify(productRepository, never()).save(any(Product.class));

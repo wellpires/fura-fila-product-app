@@ -1,0 +1,12 @@
+{
+    "product": {
+        "name": "Product Name 2",
+        "minimumStockQuantity": 15,
+        "productTypeId": 4,
+        "dimension": {
+            "height": 66,
+            "width": 77,
+            "length": 22
+        }
+    }
+}

@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.furafila.productapp.controller.resource.ProductResource;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
 import br.com.furafila.productapp.request.EditProductRequest;
-import br.com.furafila.productapp.request.NewProductRequest;
 import br.com.furafila.productapp.request.EditProductUnitPriceRequest;
+import br.com.furafila.productapp.request.NewProductRequest;
 import br.com.furafila.productapp.response.EstablishmentProductResponse;
 import br.com.furafila.productapp.response.NewProductResponse;
 import br.com.furafila.productapp.service.ProductService;
 
 @RestController
-@RequestMapping("products")
+@RequestMapping
 public class ProductController implements ProductResource {
 
 	@Autowired
@@ -72,7 +72,8 @@ public class ProductController implements ProductResource {
 	// TODO CHANGE TO PATCH MAPPING
 	@Override
 	@PutMapping(path = "/{productId}/unit-price", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> editUnitPrice(@RequestBody EditProductUnitPriceRequest newProductUnitPriceRequest,
+	public ResponseEntity<Void> editUnitPrice(
+			@RequestBody @Valid EditProductUnitPriceRequest newProductUnitPriceRequest,
 			@PathVariable("productId") Long productId) {
 
 		productService.editUnitPrice(newProductUnitPriceRequest.getNewUnitPriceDTO(), productId);

@@ -48,12 +48,15 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.furafila.productapp.dto.EditProductDTO;
+import br.com.furafila.productapp.dto.EditProductUnitPriceDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductDimensionDTO;
 import br.com.furafila.productapp.dto.EstablishmentProductTypeDTO;
 import br.com.furafila.productapp.dto.NewProductDTO;
 import br.com.furafila.productapp.exception.DimensionNotFoundException;
 import br.com.furafila.productapp.exception.ProductNotFoundException;
+import br.com.furafila.productapp.request.EditProductRequest;
+import br.com.furafila.productapp.request.EditProductUnitPriceRequest;
 import br.com.furafila.productapp.request.NewProductRequest;
 import br.com.furafila.productapp.response.EstablishmentProductResponse;
 import br.com.furafila.productapp.response.NewProductResponse;
@@ -65,11 +68,12 @@ import br.com.furafila.productapp.util.ReplaceCamelCase;
 @DisplayNameGeneration(ReplaceCamelCase.class)
 public class ProductControllerTest {
 
-	private static final String PRODUCT_PATH = "/products";
+	private static final String PRODUCT_PATH = "/";
 	private static final String LIST_ESTABLISHMENT_PRODUCTS_PATH = PRODUCT_PATH
 			.concat("/establishments/{establishmentId}");
 	private static final String EDIT_PRODUCT_PATH = PRODUCT_PATH.concat("/{productId}");
 	private static final String TOGGLE_PRODUCT_STATUS_PATH = PRODUCT_PATH.concat("/{productId}");
+	private static final String EDIT_UNIT_PRICE_PATH = PRODUCT_PATH.concat("/{productId}/unit-price");
 
 	@MockBean
 	private ProductService productService;
@@ -81,12 +85,21 @@ public class ProductControllerTest {
 	private ObjectMapper mapper;
 
 	private NewProductRequest newProductRequest;
+	private EditProductRequest editProductRequest;
+	private EditProductUnitPriceRequest editProductUnitPriceRequest;
 
 	@BeforeEach
 	public void setup() throws StreamReadException, DatabindException, IOException {
 
 		newProductRequest = mapper.readValue(Paths.get("src", "test", "resources", "NewProductRequest.json").toFile(),
 				NewProductRequest.class);
+
+		editProductRequest = mapper.readValue(Paths.get("src", "test", "resources", "EditProductRequest.json").toFile(),
+				EditProductRequest.class);
+
+		editProductUnitPriceRequest = mapper.readValue(
+				Paths.get("src", "test", "resources", "EditProductUnitPriceRequest.json").toFile(),
+				EditProductUnitPriceRequest.class);
 
 	}
 
@@ -419,10 +432,248 @@ public class ProductControllerTest {
 		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
 
 		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
-				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNoContent()).andDo(print())
-				.andReturn();
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isNoContent())
+				.andDo(print()).andReturn();
 
 		verify(productService, times(1)).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseProductInfoIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.setEditProductDTO(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseNameIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().setName(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseNameIsNotValid() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().setName("1");
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseMinimumStockQuantityIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().setMinimumStockQuantity(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseMinimumStockQuantityIsNotValid() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().setMinimumStockQuantity(0l);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseProductTypeIdIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().setProductTypeId(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseProductTypeIdIsNotValid() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().setProductTypeId(0l);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseDimensionInfoIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().setEditDimensionDTO(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseHeightIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().getEditDimensionDTO().setHeight(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseHeightIsNotValid() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().getEditDimensionDTO().setHeight(0);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseWidthIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().getEditDimensionDTO().setWidth(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseWidthIsNotValid() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().getEditDimensionDTO().setWidth(0);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseLengthIsNull() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().getEditDimensionDTO().setLength(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
+
+	}
+
+	@Test
+	public void shouldNotEditBecauseLengthIsNotValid() throws JsonProcessingException, Exception {
+
+		editProductRequest.getEditProductDTO().getEditDimensionDTO().setLength(0);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+		verify(productService, never()).edit(any(EditProductDTO.class), anyLong());
 
 	}
 
@@ -436,7 +687,7 @@ public class ProductControllerTest {
 		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
 
 		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
-				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNotFound()).andDo(print())
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isNotFound()).andDo(print())
 				.andReturn();
 
 		verify(productService, times(1)).edit(any(EditProductDTO.class), anyLong());
@@ -453,7 +704,7 @@ public class ProductControllerTest {
 		String path = UriComponentsBuilder.fromPath(EDIT_PRODUCT_PATH).buildAndExpand(param).toUriString();
 
 		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
-				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNotFound()).andDo(print())
+				.content(mapper.writeValueAsString(editProductRequest))).andExpect(status().isNotFound()).andDo(print())
 				.andReturn();
 
 		verify(productService, times(1)).edit(any(EditProductDTO.class), anyLong());
@@ -467,16 +718,15 @@ public class ProductControllerTest {
 		param.put("productId", 12);
 		String path = UriComponentsBuilder.fromPath(TOGGLE_PRODUCT_STATUS_PATH).buildAndExpand(param).toUriString();
 
-		mockMvc.perform(delete(path).contentType(MediaType.APPLICATION_JSON_VALUE)
-				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNoContent()).andDo(print())
-				.andReturn();
+		mockMvc.perform(delete(path).contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(status().isNoContent())
+				.andDo(print()).andReturn();
 
 		verify(productService, times(1)).toggleProductStatus(anyLong());
 
 	}
 
 	@Test
-	public void shouldNotToggleProductStatusBecauseNotFound() throws JsonProcessingException, Exception {
+	public void shouldNotToggleProductStatusBecauseProductNotFound() throws JsonProcessingException, Exception {
 
 		doThrow(new ProductNotFoundException()).when(productService).toggleProductStatus(anyLong());
 
@@ -484,11 +734,84 @@ public class ProductControllerTest {
 		param.put("productId", 12);
 		String path = UriComponentsBuilder.fromPath(TOGGLE_PRODUCT_STATUS_PATH).buildAndExpand(param).toUriString();
 
-		mockMvc.perform(delete(path).contentType(MediaType.APPLICATION_JSON_VALUE)
-				.content(mapper.writeValueAsString(newProductRequest))).andExpect(status().isNotFound()).andDo(print())
-				.andReturn();
+		mockMvc.perform(delete(path).contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(status().isNotFound())
+				.andDo(print()).andReturn();
 
 		verify(productService, times(1)).toggleProductStatus(anyLong());
+
+	}
+
+	@Test
+	public void shouldEditUnitPrice() throws JsonProcessingException, Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_UNIT_PRICE_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductUnitPriceRequest))).andExpect(status().isNoContent())
+				.andDo(print()).andReturn();
+
+	}
+
+	@Test
+	public void shouldEditNotUnitPriceBecauseNewUnitPriceInfoIsNull() throws JsonProcessingException, Exception {
+
+		editProductUnitPriceRequest.setNewUnitPriceDTO(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_UNIT_PRICE_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductUnitPriceRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+	}
+
+	@Test
+	public void shouldEditNotUnitPriceBecauseUnitPriceIsNull() throws JsonProcessingException, Exception {
+
+		editProductUnitPriceRequest.getNewUnitPriceDTO().setUnitPrice(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_UNIT_PRICE_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductUnitPriceRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+	}
+
+	@Test
+	public void shouldNotEditUnitPriceBecauseUnitPriceIsNotValid() throws JsonProcessingException, Exception {
+
+		editProductUnitPriceRequest.getNewUnitPriceDTO().setUnitPrice(0.00);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_UNIT_PRICE_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductUnitPriceRequest))).andExpect(status().isBadRequest())
+				.andDo(print()).andReturn();
+
+	}
+
+	@Test
+	public void shouldNotEditUnitPrice() throws JsonProcessingException, Exception {
+
+		doThrow(new ProductNotFoundException()).when(productService).editUnitPrice(any(EditProductUnitPriceDTO.class),
+				anyLong());
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("productId", 12);
+		String path = UriComponentsBuilder.fromPath(EDIT_UNIT_PRICE_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(mapper.writeValueAsString(editProductUnitPriceRequest))).andExpect(status().isNotFound())
+				.andDo(print()).andReturn();
 
 	}
 
