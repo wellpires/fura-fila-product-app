@@ -10,4 +10,6 @@ public interface ProductTypeRepository extends JpaRepository<ProductType, Long> 
 
 	List<ProductType> findByStatusIsTrue();
 
+	Boolean existsByNameIgnoreCase(String productTypeName);
+
 }

@@ -54,5 +54,13 @@ public class Messages {
 	public static final String EDIT_PRICE_UNIT_IS_REQUIRED = "{com.product.edit-product.edit-price-unit-required}";
 	public static final String EDIT_PRICE_UNIT_IS_NOT_VALID = "{com.product.edit-product.edit-price-unit-not-valid}";
 
+	public static final String EDIT_PRODUCT_TYPE_INFORMATION_IS_REQUIRED = "{com.product.edit-product-type.product-type-info-required}";
+	public static final String EDIT_PRODUCT_TYPE_NAME_IS_REQUIRED = "{com.product.edit-product-type.product-type-name-required}";
+	public static final String EDIT_PRODUCT_TYPE_NAME_IS_REQUIRED_LENGTH_IS_NOT_VALID = "{com.product.edit-product-type.product-type-name-is-not-valid}";
+
+	public static final String NEW_PRODUCT_TYPE_INFORMATION_IS_REQUIRED = "{com.product.new-product-type.product-type-info-required}";
+	public static final String NEW_PRODUCT_TYPE_NAME_IS_REQUIRED = "{com.product.new-product-type.product-type-name-required}";
+	public static final String NEW_PRODUCT_TYPE_NAME_IS_NOT_VALID = "{com.product.new-product-type.product-type-name-not-valid}";
+
 
 }

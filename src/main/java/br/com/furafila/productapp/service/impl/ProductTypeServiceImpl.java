@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.furafila.productapp.dto.EditProductTypeDTO;
+import br.com.furafila.productapp.dto.NewProductTypeDTO;
 import br.com.furafila.productapp.dto.ProductTypeDTO;
+import br.com.furafila.productapp.dto.ProductTypeDuplicityDTO;
 import br.com.furafila.productapp.exception.ProductTypeNotFoundException;
 import br.com.furafila.productapp.function.ProductType2ProductTypeDTO;
 import br.com.furafila.productapp.model.ProductType;
@@ -52,6 +54,25 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 		productType.setStatus(!productType.getStatus());
 
 		productTypeRepository.save(productType);
+	}
+
+	@Override
+	public void create(NewProductTypeDTO newProductTypeDTO) {
+
+		ProductType productType = new ProductType();
+		productType.setName(newProductTypeDTO.getName());
+		productType.setStatus(Boolean.TRUE);
+
+		productTypeRepository.save(productType);
+
+	}
+
+	@Override
+	public ProductTypeDuplicityDTO checkProductTypeDuplicity(String productTypeName) {
+
+		Boolean isExists = productTypeRepository.existsByNameIgnoreCase(productTypeName);
+
+		return new ProductTypeDuplicityDTO(isExists);
 	}
 
 }

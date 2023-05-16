@@ -2,12 +2,15 @@ package br.com.furafila.productapp.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.furafila.productapp.controller.resource.ProductTypeResource;
 import br.com.furafila.productapp.dto.ProductTypeDTO;
+import br.com.furafila.productapp.dto.ProductTypeDuplicityDTO;
 import br.com.furafila.productapp.request.EditProductTypeRequest;
+import br.com.furafila.productapp.response.NewProductTypeRequest;
+import br.com.furafila.productapp.response.ProductTypeDuplicityResponse;
 import br.com.furafila.productapp.response.ProductTypeResponse;
 import br.com.furafila.productapp.service.ProductTypeService;
 
@@ -38,7 +44,7 @@ public class ProductTypeController implements ProductTypeResource {
 	// TODO CHANGE TO PATCH
 	@Override
 	@PutMapping(path = "/{productTypeId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> edit(@RequestBody EditProductTypeRequest editProductTypeRequest,
+	public ResponseEntity<Void> edit(@RequestBody @Valid EditProductTypeRequest editProductTypeRequest,
 			@PathVariable("productTypeId") Long productTypeId) {
 
 		productTypeService.edit(editProductTypeRequest.getEditProductTypeDTO(), productTypeId);
@@ -53,6 +59,24 @@ public class ProductTypeController implements ProductTypeResource {
 		productTypeService.toggleStatus(productTypeId);
 
 		return ResponseEntity.noContent().build();
+	}
+
+	@Override
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Void> create(@RequestBody @Valid NewProductTypeRequest newProductTypeRequest) {
+
+		productTypeService.create(newProductTypeRequest.getNewProductTypeDTO());
+
+		return ResponseEntity.noContent().build();
+	}
+
+	@Override
+	@GetMapping(path = "/{productType}")
+	public ResponseEntity<ProductTypeDuplicityResponse> checkProductTypeDuplicity(
+			@PathVariable("productType") String productTypeName) {
+
+		ProductTypeDuplicityDTO productTypeDuplicityDTO = productTypeService.checkProductTypeDuplicity(productTypeName);
+		return ResponseEntity.ok(new ProductTypeDuplicityResponse(productTypeDuplicityDTO));
 	}
 
 }
